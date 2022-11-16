@@ -1,0 +1,9 @@
+# Handle line endings automatically for files detected as text and leave all
+# files detected as binary untouched.
+* text=auto eol=lf
+
+# Never modify line endings of bash scripts.
+*.sh text eol=lf
+*.bat text eol=crlf
+
+*.jar binary

@@ -1,0 +1,15 @@
+# File explorer metadata
+.DS_Store
+._*
+Thumbs.db
+
+# IDE configuration
+.idea
+.vscode
+
+# Build output and caches
+.gradle
+build
+
+# Ensure that gradle-wrapper.jar is stored in the repository.
+!gradle/wrapper/gradle-wrapper.jar

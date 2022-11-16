@@ -1,0 +1,155 @@
+plugins {
+	id 'org.springframework.boot' version '3.0.0-RC1'
+	id 'io.spring.dependency-management' version '1.1.0'
+	id 'com.bmuschko.docker-remote-api' version '9.0.0'
+	id 'org.flywaydb.flyway' version '9.5.0' // Align with version managed by Spring Boot!
+	id 'checkstyle'
+	id 'java'
+}
+
+group = 'com.example'
+version = '0.0.1-SNAPSHOT'
+
+repositories {
+	mavenCentral()
+	maven { url 'https://repo.spring.io/milestone' }
+}
+
+ext {
+	set('testcontainersVersion', "1.17.4")
+}
+
+java {
+	toolchain {
+		languageVersion = JavaLanguageVersion.of(19)
+	}
+}
+
+dependencies {
+	implementation 'org.springframework.boot:spring-boot-starter-jdbc'
+	implementation 'org.flywaydb:flyway-core'
+	runtimeOnly 'org.postgresql:postgresql'
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	testImplementation 'org.testcontainers:junit-jupiter'
+	testImplementation 'org.testcontainers:postgresql'
+}
+
+dependencyManagement {
+	imports {
+		mavenBom "org.testcontainers:testcontainers-bom:${testcontainersVersion}"
+	}
+}
+
+tasks.withType(Test).configureEach {
+	useJUnitPlatform()
+
+	// Use at most 80% of the available CPU cores (but no less than 1) for running tests. The remaining cores can then
+	// be used by Docker and other processes.
+	maxParallelForks = Math.floor(Runtime.runtime.availableProcessors() * 0.8) ?: 1
+}
+
+// The custom Gradle tasks apply all Flyway migrations on an empty database. Then, they create a database dump that can
+// be used to re-initialize the test database before every test. If you do not need that functionality, remove all
+// remaining lines.
+import com.bmuschko.gradle.docker.tasks.container.DockerCopyFileFromContainer
+import com.bmuschko.gradle.docker.tasks.container.DockerCreateContainer
+import com.bmuschko.gradle.docker.tasks.container.DockerExecContainer
+import com.bmuschko.gradle.docker.tasks.container.DockerStartContainer
+import com.bmuschko.gradle.docker.tasks.container.DockerStopContainer
+import com.bmuschko.gradle.docker.tasks.image.DockerPullImage
+import org.flywaydb.gradle.task.FlywayMigrateTask
+
+import java.nio.file.Files
+import java.nio.file.StandardOpenOption
+
+// Path where the generated database dump will be saved. Committing it to source control is another option.
+def dumpPath = project.buildDir.toPath().resolve('resources/test/db.sql')
+
+task pullDatabaseImage(type: DockerPullImage) {
+	def stateFile = project.buildDir.toPath().resolve("tmp/squash.txt")
+
+	// Declaring inputs and outputs make this task participate in incremental builds and build caching. By declaring the
+	// Flyway migration scripts as inputs the task will only run if something has changed that potentially affects the
+	// generated database dump.
+	inputs.files(fileTree('src/main/resources/db/migration'))
+		.withPropertyName('migrations')
+		.withPathSensitivity(PathSensitivity.RELATIVE)
+	outputs.file(stateFile)
+		.withPropertyName('stateFile')
+
+	image = 'docker.io/library/postgres:15.1'
+
+	doLast {
+		Files.writeString(stateFile, getImage().get(), StandardOpenOption.CREATE,
+			StandardOpenOption.TRUNCATE_EXISTING)
+	}
+}
+
+task createDatabaseContainer(type: DockerCreateContainer) {
+	dependsOn pullDatabaseImage
+
+	// onlyIf hackery is needed (as of v9.0.0) to make all Docker plug-in tasks play well with incremental builds.
+	onlyIf { pullDatabaseImage.didWork }
+
+	targetImageId pullDatabaseImage.getImage()
+	hostConfig.portBindings = ['5432:5432']
+	hostConfig.autoRemove = true
+	withEnvVar('POSTGRES_USER', 'flyway')
+	withEnvVar('POSTGRES_PASSWORD', 'flyway')
+	withEnvVar('POSTGRES_DB', 'squash')
+}
+
+task startDatabaseContainer(type: DockerStartContainer) {
+	dependsOn createDatabaseContainer
+
+	onlyIf { createDatabaseContainer.didWork }
+
+	targetContainerId createDatabaseContainer.getContainerId()
+}
+
+task stopDatabaseContainer(type: DockerStopContainer) {
+	dependsOn startDatabaseContainer
+
+	onlyIf { startDatabaseContainer.didWork }
+
+	targetContainerId startDatabaseContainer.getContainerId()
+}
+
+task runFlywayMigrations(type: FlywayMigrateTask) {
+	dependsOn startDatabaseContainer
+
+	onlyIf { startDatabaseContainer.didWork }
+
+	driver = 'org.postgresql.Driver'
+	url = 'jdbc:postgresql://localhost:5432/squash'
+	user = 'flyway'
+	password = 'flyway'
+	connectRetries = 5
+}
+
+task dumpDatabase(type: DockerExecContainer) {
+	dependsOn runFlywayMigrations
+
+	onlyIf { runFlywayMigrations.didWork }
+
+	targetContainerId startDatabaseContainer.getContainerId()
+	withCommand(['pg_dump', '--clean', '--if-exists', '--inserts', '--disable-dollar-quoting',
+				 '--no-owner', '-d', 'squash', '-U', 'flyway', '--file', '/tmp/db.sql'])
+}
+
+task copyDatabaseDumpToHost(type: DockerCopyFileFromContainer) {
+	dependsOn dumpDatabase
+	finalizedBy stopDatabaseContainer
+
+	onlyIf { dumpDatabase.didWork }
+	outputs.file(dumpPath)
+
+	targetContainerId startDatabaseContainer.getContainerId()
+	remotePath = '/tmp/db.sql'
+	hostPath = dumpPath.toString()
+}
+
+// Ensure that a database dump is present before tests are run.
+tasks.withType(ProcessResources).configureEach {
+	dependsOn copyDatabaseDumpToHost
+}
