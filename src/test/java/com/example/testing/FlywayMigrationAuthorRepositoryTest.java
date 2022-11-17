@@ -25,6 +25,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 	}
 )
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
+// An alternative to a TestExecutionListener would be a setup method annotated with @BeforeEach that invokes Flyway. But
+// then you would lose the ability to access the database in any TestExecutionListener (incl. the one that processes
+// @Sql annotations) because @BeforeEach runs after the TestExecutionListeners.
 @TestExecutionListeners(
 	value = {CleanDatabaseTestExecutionListener.class},
 	mergeMode = TestExecutionListeners.MergeMode.MERGE_WITH_DEFAULTS // Retains default TestExecutionListeners.
