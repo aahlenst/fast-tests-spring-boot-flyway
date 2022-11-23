@@ -1,6 +1,6 @@
 # Fast, Reliable Integration Tests with Spring Boot and Flyway
 
-This sample project shows different ways to set up reliable integration tests with [Spring Boot](https://spring.io/projects/spring-boot), [Flyway](https://flywaydb.org/), and [Testcontainers](https://www.testcontainers.org/). All other technologies used (JDBC, [PostgreSQL](https://postgresql.org/), JUnit 5) are interchangeable: Using, for example, [Hibernate](https://hibernate.org/), [MariaDB](https://mariadb.org/), and [TestNG](https://testng.org/) is possible with the same techniques.
+This sample project shows different ways to set up reliable integration tests with [Spring Boot](https://spring.io/projects/spring-boot), [Flyway](https://flywaydb.org/), and [Testcontainers](https://www.testcontainers.org/). All other technologies used (JDBC, [PostgreSQL](https://postgresql.org/), [JUnit 5](https://junit.org/junit5/)) are interchangeable: Using, for example, [Hibernate](https://hibernate.org/), [MariaDB](https://mariadb.org/), and [TestNG](https://testng.org/) is possible with the same techniques.
 
 All approaches guarantee that all test cases are independent (start with a fresh database) and do not hide errors (like database rollbacks). Furthermore, the test classes can be executed concurrently[^1] to take advantage of multicore processors. What varies, however, is their execution speed and how much custom plumbing is necessary.
 
