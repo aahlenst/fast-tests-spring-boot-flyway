@@ -136,8 +136,9 @@ tasks.register("dumpDatabase", DockerExecContainer) {
 	onlyIf { runFlywayMigrations.didWork }
 
 	targetContainerId startDatabaseContainer.getContainerId()
-	withCommand(['pg_dump', '--clean', '--if-exists', '--inserts', '--disable-dollar-quoting',
-				 '--no-owner', '-d', 'squash', '-U', 'flyway', '--file', '/tmp/db.sql'])
+	commands.add(['pg_dump', '--clean', '--if-exists', '--inserts',
+				  '--disable-dollar-quoting', '--no-owner', '-d', 'squash', '-U', 'flyway',
+				  '--file', '/tmp/db.sql'] as String[])
 }
 
 tasks.register("copyDatabaseDumpToHost", DockerCopyFileFromContainer) {
