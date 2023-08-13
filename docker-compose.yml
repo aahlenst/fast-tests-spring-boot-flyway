@@ -1,7 +1,7 @@
 version: "3"
 services:
   db:
-    image: "postgres:15.3"
+    image: "postgres:15.4"
     environment:
       - POSTGRES_USER=demo
       - POSTGRES_PASSWORD=PzBYnzHRq8afwfBrmF3i6kQd
