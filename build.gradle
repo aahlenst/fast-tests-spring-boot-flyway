@@ -16,7 +16,7 @@ repositories {
 }
 
 ext {
-	set("testcontainersVersion", "1.19.0")
+	set("testcontainersVersion", "1.19.1")
 }
 
 java {
