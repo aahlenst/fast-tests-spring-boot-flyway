@@ -18,7 +18,7 @@ jobs:
 
       # Ensures we don't accept a Gradle Wrapper update that has been tampered with.
       - name: Validate Gradle Wrapper
-        uses: gradle/wrapper-validation-action@v1
+        uses: gradle/wrapper-validation-action@v2
 
       - uses: actions/setup-java@v4
         with:
