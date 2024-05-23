@@ -78,10 +78,10 @@ import java.nio.file.Files
 import java.nio.file.StandardOpenOption
 
 // Path where the generated database dump will be saved. Committing it to source control is another option.
-def dumpPath = project.buildDir.toPath().resolve("resources/test/db.sql")
+def dumpPath = project.layout.buildDirectory.asFile.get().toPath().resolve("resources/test/db.sql")
 
 tasks.register("pullDatabaseImage", DockerPullImage) {
-	def stateFile = project.buildDir.toPath().resolve("tmp/squash.txt")
+	def stateFile = project.layout.buildDirectory.asFile.get().toPath().resolve("tmp/squash.txt")
 
 	// Declaring inputs and outputs make this task participate in incremental builds and build caching. By declaring the
 	// Flyway migration scripts as inputs the task will only run if something has changed that potentially affects the
