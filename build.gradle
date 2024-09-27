@@ -92,7 +92,7 @@ tasks.register("pullDatabaseImage", DockerPullImage) {
 	outputs.file(stateFile)
 		.withPropertyName("stateFile")
 
-	image = "docker.io/library/postgres:16.4"
+	image = "docker.io/library/postgres:17.0"
 
 	doLast {
 		Files.writeString(stateFile, getImage().get(), StandardOpenOption.CREATE,
@@ -140,6 +140,7 @@ tasks.register("runFlywayMigrations", FlywayMigrateTask) {
 	user = "flyway"
 	password = "flyway"
 	connectRetries = 5
+	connectRetriesInterval=120
 }
 
 tasks.register("dumpDatabase", DockerExecContainer) {
