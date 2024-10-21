@@ -2,10 +2,10 @@ package com.example.testing;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.flyway.FlywayMigrationStrategy;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
+import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.test.annotation.Commit;
 import org.springframework.test.context.ContextConfiguration;
@@ -19,9 +19,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 @JdbcTest
 @ContextConfiguration(
 	initializers = FlywayMigrationAuthorRepositoryTest.class,
+	// Whether explicit inclusion of @Repository and @TestConfiguration is necessary depends on the test slice
+	// (like @JdbcTest) being used. Some slices automatically scan for those. Check the Spring Boot documentation on the
+	// test slice you are using.
 	classes = {
 		AuthorRepository.class,
-		FlywayMigrationAuthorRepositoryTest.TestConfiguration.class
+		FlywayMigrationAuthorRepositoryTest.AdditionalTestConfiguration.class
 	}
 )
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
@@ -33,7 +36,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 	mergeMode = TestExecutionListeners.MergeMode.MERGE_WITH_DEFAULTS // Retains default TestExecutionListeners.
 )
 @Commit
-public class FlywayMigrationAuthorRepositoryTest extends AbstractPostgresJupiterTest {
+class FlywayMigrationAuthorRepositoryTest extends AbstractPostgresJupiterTest {
 
 	@Autowired
 	AuthorRepository authorRepository;
@@ -85,8 +88,8 @@ public class FlywayMigrationAuthorRepositoryTest extends AbstractPostgresJupiter
 			.containsExactly("Bert Bates", "Joshua Bloch", "Kathy Sierra", "Trisha Gee");
 	}
 
-	@SpringBootApplication
-	public static class TestConfiguration {
+	@TestConfiguration
+	public static class AdditionalTestConfiguration {
 		@Bean
 		public FlywayMigrationStrategy flywayMigrationStrategy() {
 			return flyway -> {

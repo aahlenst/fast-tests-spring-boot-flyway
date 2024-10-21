@@ -15,6 +15,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 @JdbcTest(properties = "spring.flyway.enabled=false")
 @ContextConfiguration(
 	initializers = DatabaseDumpAuthorRepositoryTest.class,
+	// Whether explicit inclusion of @Repository and @TestConfiguration is necessary depends on the test slice
+	// (like @JdbcTest) being used. Some slices automatically scan for those. Check the Spring Boot documentation on the
+	// test slice you are using.
 	classes = {
 		AuthorRepository.class
 	}
@@ -23,7 +26,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 // Reinitialise the test database before each test from the previously created database dump.
 @Sql(scripts = "/db.sql", config = @SqlConfig(transactionMode = SqlConfig.TransactionMode.ISOLATED))
 @Commit
-public class DatabaseDumpAuthorRepositoryTest extends AbstractPostgresJupiterTest {
+class DatabaseDumpAuthorRepositoryTest extends AbstractPostgresJupiterTest {
 
 	@Autowired
 	AuthorRepository authorRepository;
