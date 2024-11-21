@@ -27,10 +27,6 @@ repositories {
 	maven { url "https://repo.spring.io/milestone" }
 }
 
-ext {
-	set("testcontainersVersion", "1.20.3")
-}
-
 java {
 	toolchain {
 		languageVersion = JavaLanguageVersion.of(21)
@@ -44,12 +40,6 @@ dependencies {
 	testImplementation "org.springframework.boot:spring-boot-starter-test"
 	testImplementation "org.testcontainers:junit-jupiter"
 	testImplementation "org.testcontainers:postgresql"
-}
-
-dependencyManagement {
-	imports {
-		mavenBom "org.testcontainers:testcontainers-bom:${testcontainersVersion}"
-	}
 }
 
 tasks.withType(Test).configureEach {
