@@ -14,7 +14,7 @@ import org.testcontainers.containers.PostgreSQLContainer;
  * documentation</a> for details about singleton containers.
  */
 public class AbstractPostgresJupiterTest implements ApplicationContextInitializer<ConfigurableApplicationContext> {
-	static final PostgreSQLContainer postgres = new PostgreSQLContainer("postgres:17.2");
+	static final PostgreSQLContainer postgres = new PostgreSQLContainer("postgres:17.3");
 
 	static {
 		postgres.start();
