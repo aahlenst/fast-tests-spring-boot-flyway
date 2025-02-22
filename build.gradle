@@ -82,7 +82,7 @@ tasks.register("pullDatabaseImage", DockerPullImage) {
 	outputs.file(stateFile)
 		.withPropertyName("stateFile")
 
-	image = "docker.io/library/postgres:17.3"
+	image = "docker.io/library/postgres:17.4"
 
 	doLast {
 		Files.writeString(stateFile, getImage().get(), StandardOpenOption.CREATE,
