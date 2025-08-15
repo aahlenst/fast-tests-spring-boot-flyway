@@ -126,7 +126,7 @@ tasks.register("runFlywayMigrations", FlywayMigrateTask) {
 	user = "flyway"
 	password = "flyway"
 	connectRetries = 5
-	connectRetriesInterval=120
+	connectRetriesInterval = 120
 }
 
 tasks.register("dumpDatabase", DockerExecContainer) {
