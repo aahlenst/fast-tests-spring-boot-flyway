@@ -3,15 +3,15 @@ buildscript {
 		mavenCentral()
 	}
 	dependencies {
-		classpath "org.flywaydb:flyway-database-postgresql:11.7.2" // Align with version managed by Spring Boot!
+		classpath "org.flywaydb:flyway-database-postgresql:11.14.1" // Align with version managed by Spring Boot!
 	}
 }
 
 plugins {
-	id "org.springframework.boot" version "3.5.8"
+	id "org.springframework.boot" version "4.0.0"
 	id "io.spring.dependency-management" version "1.1.7"
 	id "com.bmuschko.docker-remote-api" version "10.0.0"
-	id "org.flywaydb.flyway" version "11.7.2" // Align with version managed by Spring Boot!
+	id "org.flywaydb.flyway" version "11.14.1" // Align with version managed by Spring Boot!
 	id "checkstyle"
 	id "java"
 }
@@ -30,12 +30,13 @@ java {
 }
 
 dependencies {
-	implementation "org.springframework.boot:spring-boot-starter-jdbc"
 	implementation "org.flywaydb:flyway-database-postgresql"
+	implementation "org.springframework.boot:spring-boot-flyway"
+	implementation "org.springframework.boot:spring-boot-starter-jdbc"
 	runtimeOnly "org.postgresql:postgresql"
-	testImplementation "org.springframework.boot:spring-boot-starter-test"
-	testImplementation "org.testcontainers:junit-jupiter"
-	testImplementation "org.testcontainers:postgresql"
+	testImplementation "org.springframework.boot:spring-boot-starter-jdbc-test"
+	testImplementation "org.testcontainers:testcontainers-junit-jupiter"
+	testImplementation "org.testcontainers:testcontainers-postgresql"
 }
 
 tasks.withType(Test).configureEach {

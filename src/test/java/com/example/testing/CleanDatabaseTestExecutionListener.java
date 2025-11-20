@@ -7,7 +7,7 @@ import org.springframework.test.context.TestContext;
 import org.springframework.test.context.TestExecutionListener;
 
 /**
- * Reinitialises a Flyway-managed test database by cleaning it before applying all migrations. The reinitialisation is
+ * Reinitializes a Flyway-managed test database by cleaning it before applying all migrations. The reinitialisation is
  * performed before each test method is run.
  */
 public class CleanDatabaseTestExecutionListener implements TestExecutionListener, Ordered {

@@ -4,7 +4,7 @@ import org.jetbrains.annotations.NotNull;
 import org.springframework.boot.test.util.TestPropertyValues;
 import org.springframework.context.ApplicationContextInitializer;
 import org.springframework.context.ConfigurableApplicationContext;
-import org.testcontainers.containers.PostgreSQLContainer;
+import org.testcontainers.postgresql.PostgreSQLContainer;
 
 /**
  * Starts a single PostgreSQL instance per JVM. All tests run on a single JVM reuse this PostgreSQL instance. Reusing
@@ -14,6 +14,7 @@ import org.testcontainers.containers.PostgreSQLContainer;
  * documentation</a> for details about singleton containers.
  */
 public class AbstractPostgresJupiterTest implements ApplicationContextInitializer<ConfigurableApplicationContext> {
+
 	static final PostgreSQLContainer postgres = new PostgreSQLContainer("postgres:17.5");
 
 	static {
