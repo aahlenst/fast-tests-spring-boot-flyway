@@ -3,7 +3,7 @@ buildscript {
 		mavenCentral()
 	}
 	dependencies {
-		classpath "org.flywaydb:flyway-database-postgresql:11.7.2" // Align with version managed by Spring Boot!
+		classpath "org.flywaydb:flyway-database-postgresql:11.17.1" // Align with version managed by Spring Boot!
 	}
 }
 
