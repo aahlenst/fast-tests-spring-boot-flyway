@@ -4,6 +4,7 @@
 		"config:base"
 	],
 	"ignoreDeps": [
-    	"org.flywaydb.flyway"
+		"org.flywaydb.flyway",
+		"org.flywaydb:flyway-database-postgresql"
 	]
 }
